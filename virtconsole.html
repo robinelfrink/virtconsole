@@ -1,0 +1,133 @@
+<!doctype html>
+<html>
+	<head>
+		<title>Libvirt Console</title>
+		<script src="spicearraybuffer.js"></script> 
+		<script src="enums.js"></script> 
+		<script src="atKeynames.js"></script> 
+		<script src="utils.js"></script> 
+		<script src="png.js"></script> 
+		<script src="lz.js"></script> 
+		<script src="quic.js"></script> 
+		<script src="bitmap.js"></script> 
+		<script src="spicedataview.js"></script> 
+		<script src="spicetype.js"></script> 
+		<script src="spicemsg.js"></script> 
+		<script src="wire.js"></script> 
+		<script src="spiceconn.js"></script> 
+		<script src="display.js"></script> 
+		<script src="main.js"></script> 
+		<script src="inputs.js"></script> 
+		<script src="webm.js"></script>
+		<script src="playback.js"></script>
+		<script src="simulatecursor.js"></script>
+		<script src="cursor.js"></script> 
+		<script src="thirdparty/jsbn.js"></script>
+		<script src="thirdparty/rsa.js"></script>
+		<script src="thirdparty/prng4.js"></script>
+		<script src="thirdparty/rng.js"></script>
+		<script src="thirdparty/sha1.js"></script>
+		<script src="ticket.js"></script>
+		<script src="resize.js"></script>
+		<script src="filexfer.js"></script>
+		<link rel="stylesheet" type="text/css" href="virtconsole.css" />
+		<script type="text/javascript">
+
+			/* The spice-object. Needs to be called 'sc', if we want to be
+			   able to use the sendCtrlAltDel() function. */
+			var sc;
+
+			function spice_error(e) { diconnect(); }
+
+			function connect(domain) {
+
+				disconnect();
+				if (sc) { sc.stop(); }
+
+				/* Abuse an a-element to split the current uri in parts */
+				var a = document.createElement('a');
+				a.setAttribute('href', window.location.href);
+
+				var uri = (a.protocol=='https:' ? 'wss' : 'ws')+
+					'://'+a.hostname+':'+a.port+a.pathname+'/domain/'+domain;
+
+				try {
+					sc = new SpiceMainConn({
+						uri: uri,
+						screen_id: 'screen',
+						dump_id: 'dump',
+						message_id: 'message',
+						password: '',
+						onerror: spice_error,
+						onagent: agent_connected
+					});
+					/* Connect succeeded; change buttons. */
+					document.getElementById('domain-'+domain).className = 'active';
+					document.getElementById('ctrlaltdel').style.display = 'block';
+				} catch (e) {
+					alert(e.toString());
+					disconnect();
+				}
+
+				return false;
+			}
+
+			function disconnect() {
+				if (sc) { sc.stop(); }
+				/* Reset buttons. */
+				var lis = document.getElementsByTagName('li');
+				for (var i=0; i<lis.length; i++)
+					lis[i].className = '';
+				document.getElementById('ctrlaltdel').style.display = 'none';
+
+				if (window.File && window.FileReader && window.FileList && window.Blob) {
+					var spice_xfer_area = document.getElementById('spice-xfer-area');
+					if (spice_xfer_area) {
+						document.getElementById('spice').removeChild(spice_xfer_area);
+						document.getElementById('spice').removeEventListener('dragover', handle_file_dragover, false);
+						document.getElementById('spice').removeEventListener('drop', handle_file_drop, false);
+					}
+				}
+			}
+
+			function agent_connected(sc) {
+				window.addEventListener('resize', handle_resize);
+				window.spice_connection = this;
+
+				resize_helper(this);
+
+				if (window.File && window.FileReader && window.FileList && window.Blob) {
+					var spice_xfer_area = document.createElement('div');
+					spice_xfer_area.setAttribute('id', 'spice-xfer-area');
+					document.getElementById('spice').appendChild(spice_xfer_area);
+					document.getElementById('spice').addEventListener('dragover', handle_file_dragover, false);
+					document.getElementById('spice').addEventListener('drop', handle_file_drop, false);
+				} else {
+					console.log("File API is not supported");
+				}
+			}
+
+			/* Automatically scroll the message window up. */
+			var timer;
+			function scrollmessage() {
+				var element = document.getElementById('message');
+				if (element)
+					element.scrollTop = element.scrollHeight;
+				if (!timer)
+					timer = window.setInterval(scrollmessage, 1000);
+			}
+			scrollmessage();
+
+		</script>
+	</head>
+	<body>
+		<div id="domains">
+			<ul>{domains}</ul>
+			<ul id="ctrlaltdel"><li><a href="#" onclick="sendCtrlAltDel(); return false;">ctrl-alt-del</a></li></ul>
+		</div>
+		<div id="spice">
+			<div id="screen" class="spice-screen"></div>
+		</div>
+		<div id="message" class="spice-message"></div>
+	</body>
+</html>

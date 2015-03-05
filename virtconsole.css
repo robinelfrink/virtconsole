@@ -1,0 +1,54 @@
+html, body {
+	font-family: 'Lucida Sans Unicode', 'Lucida Grande', 'Open Sans', Helvetica, Arial, sans;
+	background-color: #fff;
+	color: #000;
+}
+
+div#domains {
+	padding: 1em;
+	float: left;
+}
+div#domains ul {
+	list-style: none;
+	padding: 0;
+	border: 0 solid #aaa;
+	border-width: 0 0 1px 1px;
+}
+div#domains ul li {
+	border: 0 solid #aaa;
+	border-width: 1px 1px 0 0;
+	background-color: #eee;
+}
+div#domains ul li a {
+	display: inline-block;
+	padding: 1em 2em;
+	color: inherit;
+	text-decoration: none;
+}
+div#domains ul li.active {
+	background-color: #ddd;
+}
+div#domains ul li:hover {
+	background-color: #ccc;
+}
+div#domains ul#ctrlaltdel {
+	display: none;
+}
+
+div#spice {
+	padding: 1em;
+	float: left;
+}
+
+div#message {
+	padding: 1em;
+	clear: both;
+	height: 15em;
+	font-family: 'Andale Mono', monospace;
+	font-size: 65%;
+	overflow: auto;
+	border-top: 1px solid #aaa;
+}
+div#message p {
+	margin: 0;
+}
