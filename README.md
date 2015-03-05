@@ -9,7 +9,8 @@ That usually happens when 1. I do not have my laptop with virt-manager with me,
 or 2. I'm in a hotel with no access to the outside world other than port 80 and 443.
 
 So I cut&paste'd some code together, resulting in a bare console viewer. Since the Node.js
-port of websockify was the easiest re-use, I made this a Node.js project.
+port of [websockify](https://github.com/kanaka/websockify) was the easiest to re-use, I
+made this a Node.js project.
 
 ## Requirements
 
@@ -30,14 +31,16 @@ should handle that for you.
 - Fetch the code.
 - Install requirements.
 - Create /etc/supervisor/conf.d/virtconsole:
-  `[program:virtconsole]
-  command=nodejs virtconsole.js  
-  directory=`*`/path/to/virtconsole/`*`
-  autostart=true  
-  autorestart=true  
-  stderr_logfile=/var/log/supervisor/virtconsole.log  
-  stdout_logfile=/var/log/supervisor/virtconsole.log  
-  user=`*`username`*`
+```
+[program:virtconsole]
+command=nodejs virtconsole.js  
+directory=/path/to/virtconsole/
+autostart=true
+autorestart=true  
+stderr_logfile=/var/log/supervisor/virtconsole.log  
+stdout_logfile=/var/log/supervisor/virtconsole.log  
+user=username
+```
 
 ## Usage
 
@@ -51,7 +54,8 @@ been built in. That's what I use an nginx-proxy for.
 
 Here are the relevant parts of my nginx configuration:
 
-`server {
+```
+server {
   listen [::]:443 default_server ipv6only=off;
   ssl on;
   ssl_certificate myhost.pem;
@@ -76,7 +80,8 @@ Here are the relevant parts of my nginx configuration:
     proxy_read_timeout 600;
     proxy_send_timeout 600;
     client_max_body_size 1024M;
-}`
+}
+```
 
 As you can see there's also a `/terminal` uri, proxying traffic to an application
 listening to port 4200. That is [Shell In A Box](https://code.google.com/p/shellinabox/).
