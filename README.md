@@ -8,15 +8,13 @@ I have a server running qemu-kvm. On occasion I need to access a guest's console
 That usually happens when 1. I do not have my laptop with virt-manager with me,
 or 2. I'm in a hotel with no access to the outside world other than port 80 and 443.
 
-So I cut&paste'd some code together, resulting in a bare console viewer. Since the Node.js
-port of [websockify](https://github.com/kanaka/websockify) was the easiest to re-use, I
-made this a Node.js project.
+So I cut&paste'd some code together, resulting in a bare console viewer. The
+proxy part is based on code found [here](https://github.com/lou1986/tornado-ws-proxy).
 
 ## Requirements
 
-- [Node.js](http://nodejs.org/).
-  - [Node websockets](https://github.com/websockets/ws).
-  - [Node libvirt](https://github.com/hooklift/node-libvirt).
+- [Python LibVirt bindings](https://libvirt.org/python.html)
+- [Tornado Webserver](http://www.tornadoweb.org)
 - [Supervisor](http://supervisord.org/).
 - [Nginx](http://nginx.org/), or any other webserver capable of proxying websockets.
 
@@ -30,10 +28,10 @@ should handle that for you.
 
 - Fetch the code.
 - Install requirements.
-- Create /etc/supervisor/conf.d/virtconsole:
+- Create /etc/supervisor/conf.d/virtconsole.conf:
 ```
 [program:virtconsole]
-command=nodejs virtconsole.js  
+command=python virtconsole.py
 directory=/path/to/virtconsole/
 autostart=true
 autorestart=true  
@@ -90,3 +88,8 @@ do any emergency maintenance on my qemu-kvm box, even when all access I have ava
 through port 443.
 
 Except, of course, when the box itself breaks. Can't have it all.
+
+## History
+
+This used to be a node.js thing. Rewriting it in python was way quicker
+than adapting to more recent libvirt bindings for node.js.
